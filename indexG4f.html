@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+<head>
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+  async function main(){
+    let pyodide = await loadPyodide({ indexURL : "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/" });
+
+    await pyodide.loadPackage('micropip');  // Charge le package 'micropip'
+
+    await pyodide.runPythonAsync(`
+import micropip
+await micropip.install('g4f')
+`)
+
+    // Définissons notre fonction Python
+    let pythonCode = `
+def chat(data):
+  print(f"Received data: {data}")  # Log the input data
+  response = ChatCompletion.create(
+      model="gpt-3.5-turbo",
+      messages=[{"role": "user", "content": data['message']}],
+      stream=True,
+  )
+  response_list = list(response)
+  print(f"Generated response: {response_list}")  # Log the output data
+  return {'response': response_list}
+`;
+
+
+    // Exécutons notre code Python
+    pyodide.runPython(pythonCode);
+
+    // Passons des paramètres à notre fonction Python et récupérons le résultat
+    let data = { 'message': 'Hello, world!' };
+    let result = pyodide.globals.get('chat')(data);
+
+    console.log(result);  // Affiche le résultat
+  }
+  main();
+</script>
+</body>
+</html>

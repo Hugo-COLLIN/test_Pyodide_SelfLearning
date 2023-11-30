@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Pyodide test</title>
+</head>
+<body>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.20.0/full/pyodide.js"></script>
+<script>
+  async function main() {
+    return await loadPyodide({
+      indexURL : "https://cdn.jsdelivr.net/pyodide/v0.20.0/full/"
+    });
+  }
+  let pyodideReadyPromise = main();
+
+  async function evaluatePython() {
+    let pyodide = await pyodideReadyPromise;
+    try {
+      pyodide.runPython(`
+          import io
+          sys.stdout = io.StringIO()
+        `);
+      let result = pyodide.runPython(editor.getValue());
+      let stdout = pyodide.runPython("sys.stdout.getvalue()");
+      addToOutput(stdout);
+    } catch (err) {
+      addToOutput(err);
+    }
+  }
+</script>
+
+<textarea id="code" name="code" class="h-full"></textarea>
+<button onclick="evaluatePython()" type="button">Run</button>
+<textarea readonly id="output" name="output"></textarea>
+
+</body>
+</html>

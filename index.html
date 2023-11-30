@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+<head>
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+  async function main(){
+    let pyodide = await loadPyodide();
+    console.log(pyodide.runPython(`
+      data = request.get_json()
+      print(f"Received data: {data}")  # Log the input data
+      response = ChatCompletion.create(
+          model="gpt-3.5-turbo",
+          messages=[{"role": "user", "content": data['message']}],
+          stream=True,
+      )
+      response_list = list(response)
+      print(f"Generated response: {response_list}")  # Log the output data
+      return {'response': response_list}
+    `));
+  }
+  main();
+</script>
+</body>
+</html>
